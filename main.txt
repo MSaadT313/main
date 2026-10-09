@@ -459,3 +459,74 @@
     "description": "Python TCP CGPA client on port 8085 using the supplied BS/BBA scale. Server handles students concurrently and saves complete records to cgpa_log.txt. Run server first. Subject count: 1-100; credit hours: integers 1-6; marks: 0-100."
   }
 }
+telnet 
+
+enable 
+conf terminal 
+
+hostname router1 
+enable password 123 
+
+line vty 0 15 
+password 123 
+login 
+transport input telnet 
+exit 
+
+interface vlan1 
+ip address 192))) 
+no shutdown 
+exit 
+
+
+ssh: 
+enable  
+conf terminal 
+
+hostname router1 
+username admin privilege 15 secret 123 
+crypto generate key rsa 
+1024 
+line vty  0 15 
+login local 
+transport input ssh 
+exit 
+
+
+client code: 
+import socket 
+
+c = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+c.connect(("localhost", 3001)) 
+
+r = input(c.recv(1024).decode()) 
+c.send(r.encode()) 
+print(c.recv(1024).decode()) 
+
+c.close() 
+
+
+server code : 
+
+import socket  
+import threading 
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+s.bind(("localhost", 3001)) 
+s.listen(5) 
+
+def h_c(c, addr): 
+    c.send("Enter roll number\n".encode()) 
+    roll_no = s.recv(1024).decode() 
+
+    with open ("roll.txt", "a") as f: 
+        f.write(f"Rollnumber: {roll_no}") 
+
+    c.send("Completed\n".encode()) 
+    c.close() 
+
+while True: 
+    c, addr = s.accept() 
+    thread = threading.Thread(target = h_c, args = (c, addr)) 
+    thread.start() 
+
